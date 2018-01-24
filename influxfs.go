@@ -27,6 +27,7 @@ func realMain() int {
 		return 1
 	}
 	bufWriter := influxdb.NewTimedWriter(influxdb.NewBufferedWriter(client.Writer()), time.Second)
+	defer bufWriter.Flush()
 
 	fs := influxfs.New(args[0], bufWriter)
 	conn, err := fuse.Mount(args[1])

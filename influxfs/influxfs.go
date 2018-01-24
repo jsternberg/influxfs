@@ -11,12 +11,13 @@ import (
 
 type FileSystem struct {
 	dir    string
-	writer *influxdb.TimedWriter
+	writer influxdb.Writer
 }
 
-func New(dir string) *FileSystem {
+func New(dir string, writer influxdb.Writer) *FileSystem {
 	return &FileSystem{
-		dir: dir,
+		dir:    dir,
+		writer: writer,
 	}
 }
 

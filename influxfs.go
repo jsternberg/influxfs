@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"bazil.org/fuse"
+	"bazil.org/fuse/fs"
 	"github.com/influxdata/influxdb-client"
 	"github.com/jsternberg/influxfs/influxfs"
 	flag "github.com/spf13/pflag"
@@ -29,19 +30,36 @@ func realMain() int {
 	bufWriter := influxdb.NewTimedWriter(influxdb.NewBufferedWriter(client.Writer()), time.Second)
 	defer bufWriter.Flush()
 
-	fs := influxfs.New(args[0], bufWriter)
-	conn, err := fuse.Mount(args[1])
+	source := args[0]
+	dest := args[1]
+
+	filesystem := influxfs.New(source, bufWriter)
+	conn, err := fuse.Mount(
+		dest,
+		fuse.FSName("influxfs"),
+		fuse.LocalVolume(),
+	)
+
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: Unable to mount fuse filesystem: %s\n", err)
 		return 1
 	}
 	defer conn.Close()
 
-	<-conn.Ready
-	if err := fs.Serve(conn); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+	err = fs.Serve(conn, filesystem)
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: Unable to serve fuse filesystem: %s\n", err)
 		return 1
 	}
+
+	<-conn.Ready
+
+	if err := conn.MountError; err != nil {
+		fmt.Fprintf(os.Stderr, "Error: Unable to connect to the fuse filesystem: %s\n", err)
+		return 1
+	}
+
 	return 0
 }
 

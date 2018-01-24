@@ -6,10 +6,20 @@ import (
 
 	"bazil.org/fuse"
 	"github.com/jsternberg/influxfs/influxfs"
+	flag "github.com/spf13/pflag"
 )
 
 func realMain() int {
-	conn, err := fuse.Mount("")
+	flag.Parse()
+	args := flag.Args()
+
+	if len(args) != 2 {
+		fmt.Fprintf(os.Stderr, "Error: Requires exactly two arguments\n")
+		return 1
+	}
+
+	fs := influxfs.New(args[0])
+	conn, err := fuse.Mount(args[1])
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: Unable to mount fuse filesystem: %s\n", err)
 		return 1
@@ -17,7 +27,6 @@ func realMain() int {
 	defer conn.Close()
 
 	<-conn.Ready
-	fs := influxfs.New()
 	if err := fs.Serve(conn); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return 1

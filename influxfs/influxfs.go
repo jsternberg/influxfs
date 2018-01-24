@@ -6,13 +6,18 @@ import (
 	"os"
 
 	"bazil.org/fuse"
+	"github.com/influxdata/influxdb-client"
 )
 
 type FileSystem struct {
+	dir    string
+	writer *influxdb.TimedWriter
 }
 
-func New() *FileSystem {
-	return &FileSystem{}
+func New(dir string) *FileSystem {
+	return &FileSystem{
+		dir: dir,
+	}
 }
 
 func (fs *FileSystem) Serve(conn *fuse.Conn) error {

@@ -1,16 +1,22 @@
 package influxfs
 
 import (
+	"fmt"
+	"os"
+	"time"
+
 	"bazil.org/fuse"
+	"github.com/influxdata/influxdb-client"
 )
 
-func trace(h *fuse.Header, typ string, f map[string]interface{}) {
+func (fs *FileSystem) trace(header *fuse.Header, typ string, f map[string]interface{}) {
 
-	fields := make(maps[string]interface{}, len(f)+1)
+	fields := make(map[string]interface{}, len(f)+1)
 	for key, value := range f {
 		fields[key] = value
 	}
-	header := req.Hdr()
+	fields["id"] = header.ID
+
 	p := influxdb.Point{
 		Name: "fsevents",
 		Tags: influxdb.Tags{
@@ -20,9 +26,9 @@ func trace(h *fuse.Header, typ string, f map[string]interface{}) {
 			influxdb.Tag{Key: "uid", Value: fmt.Sprintf("%d", header.Uid)},
 		},
 		Fields: fields,
-		Time: time.Now(),
+		Time:   time.Now(),
 	}
-	p.
+
 	if _, err := p.WriteTo(fs.writer); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 	}

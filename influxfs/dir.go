@@ -19,6 +19,7 @@ type Dir struct {
 }
 
 func (dir *Dir) Open(ctx context.Context, req *fuse.OpenRequest, resp *fuse.OpenResponse) (fs.Handle, error) {
+	trace(dir.writer, req.Hdr(), "opendir", map[string]interface{}{"dir": dir.path})
 	return dir, nil
 }
 
@@ -32,9 +33,9 @@ func (dir *Dir) Attr(ctx context.Context, a *fuse.Attr) error {
 	return nil
 }
 
-func (dir *Dir) Lookup(ctx context.Context, name string) (fs.Node, error) {
-
-	path := filepath.Join(dir.path, name)
+func (dir *Dir) Lookup(ctx context.Context, req *fuse.LookupRequest, resp *fuse.LookupResponse) (fs.Node, error) {
+	trace(dir.writer, req.Hdr(), "lookup", map[string]interface{}{"dir": dir.path, "name": req.Name})
+	path := filepath.Join(dir.path, req.Name)
 	st, err := os.Stat(path)
 	if err != nil {
 		return nil, fuse.ENOENT
@@ -71,7 +72,7 @@ func (dir *Dir) Create(ctx context.Context, req *fuse.CreateRequest, resp *fuse.
 }
 
 func (dir *Dir) Mkdir(ctx context.Context, req *fuse.MkdirRequest) (fs.Node, error) {
-	trace(dir.writer, req.Hdr(), "mkdir", map[string]interface{}{"name": req.Name})
+	trace(dir.writer, req.Hdr(), "mkdir", map[string]interface{}{"dir": dir.path, "name": req.Name})
 	path := filepath.Join(dir.path, req.Name)
 	if err := os.Mkdir(path, req.Mode); err != nil {
 		return nil, err

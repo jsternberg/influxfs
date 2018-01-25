@@ -41,7 +41,7 @@ func (dir *Dir) Lookup(ctx context.Context, name string) (fs.Node, error) {
 	}
 
 	if st.Mode()&os.ModeDir != 0 {
-		return &Dir{path: path}, nil
+		return &Dir{path: path, writer: dir.writer}, nil
 	}
 	return &File{name: path}, nil
 }
@@ -66,15 +66,15 @@ func (dir *Dir) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
 }
 
 func (dir *Dir) Create(ctx context.Context, req *fuse.CreateRequest, resp *fuse.CreateResponse) (fs.Node, fs.Handle, error) {
-	trace(dir.writer, req.Hdr(), "create", map[string]interface{}{"name": req.Name})
 	de := &File{}
 	return de, de, nil
 }
 
 func (dir *Dir) Mkdir(ctx context.Context, req *fuse.MkdirRequest) (fs.Node, error) {
+	trace(dir.writer, req.Hdr(), "mkdir", map[string]interface{}{"name": req.Name})
 	path := filepath.Join(dir.path, req.Name)
 	if err := os.Mkdir(path, req.Mode); err != nil {
 		return nil, err
 	}
-	return &Dir{path: path}, nil
+	return &Dir{path: path, writer: dir.writer}, nil
 }

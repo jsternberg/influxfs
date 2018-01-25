@@ -27,7 +27,15 @@ func realMain() int {
 		fmt.Fprintf(os.Stderr, "Error: Invalid InfluxDB URL: %s\n", err)
 		return 1
 	}
-	bufWriter := influxdb.NewTimedWriter(influxdb.NewBufferedWriter(client.Writer()), time.Second)
+	querier := client.Querier()
+	if err := querier.Execute("CREATE DATABASE fuse"); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: Could not create database: %s\n", err)
+		return 1
+	}
+
+	writer := client.Writer()
+	writer.Database = "fuse"
+	bufWriter := influxdb.NewTimedWriter(influxdb.NewBufferedWriter(writer), time.Second)
 	defer bufWriter.Flush()
 
 	source := args[0]

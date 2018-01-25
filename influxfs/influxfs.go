@@ -18,5 +18,5 @@ func New(dir string, writer influxdb.Writer) *FileSystem {
 }
 
 func (g *FileSystem) Root() (fs.Node, error) {
-	return &Dir{path: g.dir}, nil
+	return &Dir{path: g.dir, writer: g.writer}, nil
 }

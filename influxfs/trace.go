@@ -16,7 +16,7 @@ func trace(writer io.Writer, header *fuse.Header, typ string, f map[string]inter
 	for key, value := range f {
 		fields[key] = value
 	}
-	fields["id"] = header.ID
+	fields["id"] = header.ID.String()
 
 	p := influxdb.Point{
 		Name: "fsevents",

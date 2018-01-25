@@ -20,6 +20,7 @@ func (fs *FileSystem) trace(header *fuse.Header, typ string, f map[string]interf
 	p := influxdb.Point{
 		Name: "fsevents",
 		Tags: influxdb.Tags{
+			influxdb.Tag{Key: "type", Value: typ},
 			influxdb.Tag{Key: "gid", Value: fmt.Sprintf("%d", header.Gid)},
 			influxdb.Tag{Key: "node", Value: fmt.Sprintf("%d", header.Node)},
 			influxdb.Tag{Key: "pid", Value: fmt.Sprintf("%d", header.Pid)},

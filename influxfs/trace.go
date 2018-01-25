@@ -2,6 +2,7 @@ package influxfs
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"time"
 
@@ -30,7 +31,7 @@ func trace(writer io.Writer, header *fuse.Header, typ string, f map[string]inter
 		Time:   time.Now(),
 	}
 
-	if _, err := p.WriteTo(fs.writer); err != nil {
+	if _, err := p.WriteTo(writer); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 	}
 

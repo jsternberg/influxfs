@@ -9,6 +9,7 @@ import (
 
 	"bazil.org/fuse"
 	"bazil.org/fuse/fs"
+	"github.com/influxdata/influxdb-client"
 	"golang.org/x/net/context"
 )
 

@@ -9,7 +9,7 @@ import (
 	"github.com/influxdata/influxdb-client"
 )
 
-func (fs *FileSystem) trace(header *fuse.Header, typ string, f map[string]interface{}) {
+func trace(writer io.Writer, header *fuse.Header, typ string, f map[string]interface{}) {
 
 	fields := make(map[string]interface{}, len(f)+1)
 	for key, value := range f {

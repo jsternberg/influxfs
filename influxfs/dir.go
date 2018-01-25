@@ -13,7 +13,8 @@ import (
 )
 
 type Dir struct {
-	path string
+	path   string
+	writer influxdb.Writer
 }
 
 func (dir *Dir) Open(ctx context.Context, req *fuse.OpenRequest, resp *fuse.OpenResponse) (fs.Handle, error) {
@@ -31,6 +32,7 @@ func (dir *Dir) Attr(ctx context.Context, a *fuse.Attr) error {
 }
 
 func (dir *Dir) Lookup(ctx context.Context, name string) (fs.Node, error) {
+
 	path := filepath.Join(dir.path, name)
 	st, err := os.Stat(path)
 	if err != nil {
@@ -63,6 +65,7 @@ func (dir *Dir) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
 }
 
 func (dir *Dir) Create(ctx context.Context, req *fuse.CreateRequest, resp *fuse.CreateResponse) (fs.Node, fs.Handle, error) {
+	trace(dir.writer, req.Hdr(), "create", map[string]interface{}{"name": req.Name})
 	de := &File{}
 	return de, de, nil
 }
